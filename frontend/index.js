@@ -76,6 +76,23 @@ function addDragFunctionality() {
 function handleCanvasDrop(e) {
     e.preventDefault();
     const data = JSON.parse(e.dataTransfer.getData('text'));
+    const newElement = createComponent(data);
+    
+    const canvas = document.getElementById('canvas');
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    newElement.style.position = 'absolute';
+    newElement.style.left = `${x}px`;
+    newElement.style.top = `${y}px`;
+    
+    canvas.appendChild(newElement);
+    updateCurrentWebsite();
+    updateLayersPanel();
+}
+
+function createComponent(data) {
     const newElement = document.createElement('div');
     newElement.className = 'component border rounded p-2 mb-2 position-relative';
     newElement.innerHTML = decodeURIComponent(data.template);
@@ -85,10 +102,12 @@ function handleCanvasDrop(e) {
             <button class="btn btn-sm btn-outline-danger delete-btn"><i data-lucide="trash-2"></i></button>
         </div>
     `;
-    e.target.appendChild(newElement);
+    newElement.draggable = true;
+    newElement.dataset.component = data.component;
+    
     lucide.createIcons();
     addComponentEventListeners(newElement);
-    updateCurrentWebsite();
+    return newElement;
 }
 
 function addComponentEventListeners(component) {
@@ -96,17 +115,14 @@ function addComponentEventListeners(component) {
     const deleteBtn = component.querySelector('.delete-btn');
     const editableElements = component.querySelectorAll('.editable');
 
-    moveBtn.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        component.draggable = true;
-        component.addEventListener('dragstart', handleDragStart);
-        component.addEventListener('dragend', handleDragEnd);
-    });
+    component.addEventListener('dragstart', handleDragStart);
+    component.addEventListener('dragend', handleDragEnd);
 
     deleteBtn.addEventListener('click', () => {
         if (confirm('Are you sure you want to delete this component?')) {
             component.remove();
             updateCurrentWebsite();
+            updateLayersPanel();
         }
     });
 
@@ -114,6 +130,7 @@ function addComponentEventListeners(component) {
         elem.contentEditable = true;
         elem.addEventListener('blur', () => {
             updateCurrentWebsite();
+            updateLayersPanel();
         });
     });
 }
@@ -125,10 +142,8 @@ function handleDragStart(e) {
 
 function handleDragEnd(e) {
     e.target.style.opacity = '1';
-    e.target.draggable = false;
-    e.target.removeEventListener('dragstart', handleDragStart);
-    e.target.removeEventListener('dragend', handleDragEnd);
     updateCurrentWebsite();
+    updateLayersPanel();
 }
 
 async function init() {
@@ -149,6 +164,9 @@ async function init() {
 
     document.getElementById('saveBtn').addEventListener('click', saveWebsite);
     document.getElementById('publishBtn').addEventListener('click', publishWebsite);
+
+    document.getElementById('componentsTab').addEventListener('click', showComponentsPanel);
+    document.getElementById('layersTab').addEventListener('click', showLayersPanel);
 }
 
 function setPreviewMode(mode) {
@@ -170,9 +188,59 @@ function setPreviewMode(mode) {
 function updateCurrentWebsite() {
     const canvas = document.getElementById('canvas');
     currentWebsite.components = Array.from(canvas.children).map(child => ({
-        type: child.querySelector('.editable') ? child.querySelector('.editable').tagName.toLowerCase() : 'div',
-        content: child.querySelector('.editable') ? child.querySelector('.editable').innerHTML : child.innerHTML
+        type: child.dataset.component,
+        content: child.querySelector('.editable') ? child.querySelector('.editable').innerHTML : child.innerHTML,
+        position: {
+            left: child.style.left,
+            top: child.style.top
+        }
     }));
+}
+
+function updateLayersPanel() {
+    const layersList = document.getElementById('layersList');
+    layersList.innerHTML = '';
+    currentWebsite.components.forEach((component, index) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.innerHTML = `
+            ${component.type}
+            <div>
+                <button class="btn btn-sm btn-outline-secondary me-1 layer-up-btn">↑</button>
+                <button class="btn btn-sm btn-outline-secondary layer-down-btn">↓</button>
+            </div>
+        `;
+        li.querySelector('.layer-up-btn').addEventListener('click', () => moveLayer(index, 'up'));
+        li.querySelector('.layer-down-btn').addEventListener('click', () => moveLayer(index, 'down'));
+        layersList.appendChild(li);
+    });
+}
+
+function moveLayer(index, direction) {
+    const canvas = document.getElementById('canvas');
+    const components = Array.from(canvas.children);
+    if (direction === 'up' && index > 0) {
+        canvas.insertBefore(components[index], components[index - 1]);
+    } else if (direction === 'down' && index < components.length - 1) {
+        canvas.insertBefore(components[index + 1], components[index]);
+    }
+    updateCurrentWebsite();
+    updateLayersPanel();
+}
+
+function showComponentsPanel() {
+    document.getElementById('componentsPanel').style.display = 'block';
+    document.getElementById('layersPanel').style.display = 'none';
+    document.getElementById('componentsTab').classList.add('active');
+    document.getElementById('layersTab').classList.remove('active');
+}
+
+function showLayersPanel() {
+    document.getElementById('componentsPanel').style.display = 'none';
+    document.getElementById('layersPanel').style.display = 'block';
+    document.getElementById('componentsTab').classList.remove('active');
+    document.getElementById('layersTab').classList.add('active');
+    updateLayersPanel();
 }
 
 async function saveWebsite() {
@@ -228,19 +296,15 @@ function renderSavedWebsite() {
     const canvas = document.getElementById('canvas');
     canvas.innerHTML = '';
     currentWebsite.components.forEach(component => {
-        const newElement = document.createElement('div');
-        newElement.className = 'component border rounded p-2 mb-2 position-relative';
-        newElement.innerHTML = `<${component.type} class="editable">${component.content}</${component.type}>`;
-        newElement.innerHTML += `
-            <div class="component-controls position-absolute top-0 end-0 p-1">
-                <button class="btn btn-sm btn-outline-secondary me-1 move-btn"><i data-lucide="move"></i></button>
-                <button class="btn btn-sm btn-outline-danger delete-btn"><i data-lucide="trash-2"></i></button>
-            </div>
-        `;
+        const newElement = createComponent({
+            component: component.type,
+            template: encodeURIComponent(component.content)
+        });
+        newElement.style.left = component.position.left;
+        newElement.style.top = component.position.top;
         canvas.appendChild(newElement);
-        addComponentEventListeners(newElement);
     });
-    lucide.createIcons();
+    updateLayersPanel();
 }
 
 document.addEventListener('DOMContentLoaded', init);

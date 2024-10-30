@@ -6,6 +6,7 @@ body {
     transition: width 0.3s ease;
     margin: 0 auto;
     min-height: 800px;
+    position: relative;
 }
 
 [draggable="true"] {
@@ -30,7 +31,13 @@ body {
 }
 
 .component {
-    position: relative;
+    position: absolute;
+    background-color: white;
+    z-index: 1;
+}
+
+.component:hover {
+    z-index: 2;
 }
 
 .component:hover .component-controls {
@@ -48,4 +55,12 @@ body {
 .editable:focus {
     outline: 2px solid #007bff;
     padding: 2px;
+}
+
+#layersList .list-group-item {
+    cursor: pointer;
+}
+
+#layersList .list-group-item:hover {
+    background-color: #f8f9fa;
 }

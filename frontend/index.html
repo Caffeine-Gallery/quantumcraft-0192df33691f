@@ -55,10 +55,15 @@
                         <a class="nav-link" id="layersTab" href="#">Layers</a>
                     </li>
                 </ul>
-                <div class="mb-3">
-                    <input type="text" class="form-control" id="searchComponents" placeholder="Search components...">
+                <div id="componentsPanel">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="searchComponents" placeholder="Search components...">
+                    </div>
+                    <div id="componentList"></div>
                 </div>
-                <div id="componentList"></div>
+                <div id="layersPanel" style="display: none;">
+                    <ul id="layersList" class="list-group"></ul>
+                </div>
             </div>
 
             <div class="col-6 bg-light p-3">
