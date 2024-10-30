@@ -1,0 +1,5 @@
+service : {
+  getPublishedWebsites: () -> (vec text) query;
+  publishWebsite: () -> (text);
+  saveWebsite: (text) -> ();
+}

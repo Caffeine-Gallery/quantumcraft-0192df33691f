@@ -1,0 +1,29 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+#canvas {
+    transition: width 0.3s ease;
+    margin: 0 auto;
+}
+
+[draggable="true"] {
+    cursor: move;
+}
+
+.nav-tabs .nav-link {
+    color: #495057;
+}
+
+.nav-tabs .nav-link.active {
+    font-weight: bold;
+}
+
+#componentList .border {
+    transition: all 0.2s ease;
+}
+
+#componentList .border:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
