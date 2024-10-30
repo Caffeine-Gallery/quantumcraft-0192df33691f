@@ -27,3 +27,24 @@ body {
     background-color: #f8f9fa;
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
+
+.component {
+    position: relative;
+}
+
+.component:hover .component-controls {
+    display: flex;
+}
+
+.component-controls {
+    display: none;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 10;
+}
+
+.editable:focus {
+    outline: 2px solid #007bff;
+    padding: 2px;
+}

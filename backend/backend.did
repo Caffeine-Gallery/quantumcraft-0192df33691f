@@ -1,5 +1,16 @@
+type Result_1 = 
+ variant {
+   err: text;
+   ok: text;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok;
+ };
 service : {
+  getCurrentWebsite: () -> (text) query;
   getPublishedWebsites: () -> (vec text) query;
-  publishWebsite: () -> (text);
-  saveWebsite: (text) -> ();
+  publishWebsite: () -> (Result_1);
+  saveWebsite: (text) -> (Result);
 }
