@@ -10,7 +10,6 @@
 </head>
 <body>
     <div class="container-fluid vh-100 d-flex flex-column">
-        <!-- Top Command Bar -->
         <div class="row bg-light border-bottom py-2">
             <div class="col d-flex justify-content-between align-items-center">
                 <div>
@@ -19,9 +18,6 @@
                     </button>
                     <button class="btn btn-sm btn-outline-secondary me-2" id="redoBtn">
                         <i data-lucide="redo"></i>
-                    </button>
-                    <button class="btn btn-sm btn-outline-primary" id="aiAssistBtn">
-                        <i data-lucide="wand"></i> AI Assist
                     </button>
                 </div>
                 <div>
@@ -49,9 +45,7 @@
             </div>
         </div>
 
-        <!-- Main Content -->
         <div class="row flex-grow-1">
-            <!-- Left Sidebar -->
             <div class="col-3 border-end p-3">
                 <ul class="nav nav-tabs mb-3" id="sidebarTabs">
                     <li class="nav-item">
@@ -60,9 +54,6 @@
                     <li class="nav-item">
                         <a class="nav-link" id="layersTab" href="#">Layers</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="assetsTab" href="#">Assets</a>
-                    </li>
                 </ul>
                 <div class="mb-3">
                     <input type="text" class="form-control" id="searchComponents" placeholder="Search components...">
@@ -70,24 +61,13 @@
                 <div id="componentList"></div>
             </div>
 
-            <!-- Main Canvas -->
             <div class="col-6 bg-light p-3">
-                <div id="canvas" class="bg-white rounded shadow-sm p-3" style="min-height: 800px;">
-                    <div class="text-center py-5">
-                        <h3>Start Building</h3>
-                        <p>Drag components or use AI to generate content</p>
-                        <button class="btn btn-outline-secondary me-2">Templates</button>
-                        <button class="btn btn-primary">AI Generate</button>
-                    </div>
-                </div>
+                <div id="canvas" class="bg-white rounded shadow-sm p-3" style="min-height: 800px;"></div>
             </div>
 
-            <!-- Right Sidebar -->
             <div class="col-3 border-start p-3">
                 <h5>Properties</h5>
-                <div id="elementProperties">
-                    <p class="text-muted">Select an element to edit its properties</p>
-                </div>
+                <div id="elementProperties"></div>
             </div>
         </div>
     </div>

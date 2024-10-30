@@ -1,38 +1,71 @@
-import Int "mo:base/Int";
+import Bool "mo:base/Bool";
+import Hash "mo:base/Hash";
 
 import Text "mo:base/Text";
 import Array "mo:base/Array";
 import Result "mo:base/Result";
 import Error "mo:base/Error";
+import HashMap "mo:base/HashMap";
+import Principal "mo:base/Principal";
+import Iter "mo:base/Iter";
 
 actor WebsiteBuilder {
-    stable var websites : [Text] = [];
-    stable var currentWebsite : Text = "";
+    type Website = {
+        content: Text;
+        published: Bool;
+    };
 
-    // Save the current website
+    let websites = HashMap.HashMap<Principal, Website>(10, Principal.equal, Principal.hash);
+
     public shared(msg) func saveWebsite(websiteData : Text) : async Result.Result<(), Text> {
-        currentWebsite := websiteData;
+        let caller = msg.caller;
+        let website : Website = {
+            content = websiteData;
+            published = false;
+        };
+        websites.put(caller, website);
         #ok()
     };
 
-    // Publish the current website
     public shared(msg) func publishWebsite() : async Result.Result<Text, Text> {
-        if (Text.size(currentWebsite) == 0) {
-            #err("Error: No website data to publish")
-        } else {
-            let websiteId = Text.concat("website_", Int.toText(Array.size(websites)));
-            websites := Array.append(websites, [currentWebsite]);
-            #ok(Text.concat("https://example.com/", websiteId))
+        let caller = msg.caller;
+        switch (websites.get(caller)) {
+            case (null) {
+                #err("No website found for the user")
+            };
+            case (?website) {
+                let updatedWebsite : Website = {
+                    content = website.content;
+                    published = true;
+                };
+                websites.put(caller, updatedWebsite);
+                #ok(Text.concat("https://example.com/", Principal.toText(caller)))
+            };
         }
     };
 
-    // Get all published websites
-    public query func getPublishedWebsites() : async [Text] {
-        websites
+    public shared(msg) func getCurrentWebsite() : async Result.Result<Text, Text> {
+        let caller = msg.caller;
+        switch (websites.get(caller)) {
+            case (null) {
+                #err("No website found for the user")
+            };
+            case (?website) {
+                #ok(website.content)
+            };
+        }
     };
 
-    // Get the current website data
-    public query func getCurrentWebsite() : async Text {
-        currentWebsite
+    public query func getPublishedWebsites() : async [(Principal, Text)] {
+        Array.mapFilter<(Principal, Website), (Principal, Text)>(
+            Iter.toArray(websites.entries()),
+            func ((principal, website)) {
+                if (website.published) {
+                    ?((principal, website.content))
+                } else {
+                    null
+                }
+            }
+        )
     };
 }

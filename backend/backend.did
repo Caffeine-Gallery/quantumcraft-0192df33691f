@@ -9,8 +9,11 @@ type Result =
    ok;
  };
 service : {
-  getCurrentWebsite: () -> (text) query;
-  getPublishedWebsites: () -> (vec text) query;
+  getCurrentWebsite: () -> (Result_1);
+  getPublishedWebsites: () -> (vec record {
+                                     principal;
+                                     text;
+                                   }) query;
   publishWebsite: () -> (Result_1);
   saveWebsite: (text) -> (Result);
 }

@@ -7,8 +7,8 @@ export type Result = { 'ok' : null } |
 export type Result_1 = { 'ok' : string } |
   { 'err' : string };
 export interface _SERVICE {
-  'getCurrentWebsite' : ActorMethod<[], string>,
-  'getPublishedWebsites' : ActorMethod<[], Array<string>>,
+  'getCurrentWebsite' : ActorMethod<[], Result_1>,
+  'getPublishedWebsites' : ActorMethod<[], Array<[Principal, string]>>,
   'publishWebsite' : ActorMethod<[], Result_1>,
   'saveWebsite' : ActorMethod<[string], Result>,
 }
